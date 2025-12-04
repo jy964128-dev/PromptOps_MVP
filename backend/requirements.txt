@@ -1,0 +1,19 @@
+# FastAPI 核心依赖
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+
+# 数据库相关
+sqlalchemy==2.0.25
+psycopg2-binary==2.9.9  # PostgreSQL 驱动（生产环境）
+
+# LLM 调用
+litellm==1.54.0
+
+# 其他工具
+python-multipart==0.0.6
+pydantic==2.5.3
+pydantic-settings==2.1.0
+
+
+
+
