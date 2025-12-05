@@ -490,11 +490,9 @@ export default function Dashboard() {
                   startAngle={90}
                   endAngle={-270}
                 >
-                  // @ts-ignore
                   <RadialBar
                     dataKey="value"
                     cornerRadius={8}
-                    fill={(entry: any) => entry.fill as any}
                   >
                     {roseChartData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.fill} />
