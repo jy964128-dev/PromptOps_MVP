@@ -2,7 +2,7 @@
  * 数据大屏组件 - 高端科技感设计
  * Light Mode, Glassmorphism, Bento Grid, Cyberpunk Purple & Neon Blue gradients
  */
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';  //import React, { useEffect, useState, useRef } from 'react';
 import {
   AreaChart,
   Area,
@@ -493,7 +493,7 @@ export default function Dashboard() {
                   <RadialBar
                     dataKey="value"
                     cornerRadius={8}
-                    fill={(entry: any) => entry.fill}
+                    fill={(entry: any) => entry.fill as any}
                   >
                     {roseChartData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.fill} />
