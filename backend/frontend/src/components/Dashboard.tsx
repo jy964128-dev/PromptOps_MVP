@@ -2,7 +2,7 @@
  * 数据大屏组件 - 高端科技感设计
  * Light Mode, Glassmorphism, Bento Grid, Cyberpunk Purple & Neon Blue gradients
  */
-import { useEffect, useState, useRef } from 'react';  //import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react'; 
 import {
   AreaChart,
   Area,
@@ -490,6 +490,7 @@ export default function Dashboard() {
                   startAngle={90}
                   endAngle={-270}
                 >
+                  // @ts-ignore
                   <RadialBar
                     dataKey="value"
                     cornerRadius={8}
