@@ -19,7 +19,19 @@ app = FastAPI(
     description="Prompt 生命周期管理系统 API",
     version="1.0.0",
 )
-
+# --- 配置 CORS (核心修改在这里) ---
+origins = [
+    "http://localhost:3000",             # 本地开发前端
+    "http://localhost:5173",             # Vite 本地默认端口
+    "https://prompt-ops-mvp-blush.vercel.app",  # <--- 你的 Vercel 生产环境域名 (没有末尾斜杠!)
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,   # 这里使用了上面的列表
+    allow_credentials=True,
+    allow_methods=["*"],     # 允许所有方法 (GET, POST, PUT, DELETE等)
+    allow_headers=["*"],     # 允许所有 Header
+)
 # 配置 CORS（跨域资源共享）
 # 开发环境：明确列出常见端口 + 正则表达式匹配其他端口
 # 生产环境：通过环境变量 CORS_ORIGINS 设置具体域名
