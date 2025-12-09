@@ -52,9 +52,9 @@ if SQLALCHEMY_DATABASE_URL.startswith("postgresql://") or SQLALCHEMY_DATABASE_UR
 current_url = os.getenv("DATABASE_URL") # 确保这里的键名和你Render里设置的一样
 
 # 打印出来（在Render日志里看）
-print(f"--- DEBUG INFO ---")
+print(f"唐小果--- DEBUG INFO ---")
 print(f"The code thinks the URL is: {current_url}")
-print(f"--- DEBUG END ---")
+print(f"糖小果--- DEBUG END ---")
 
 def _create_engine():
     """构建 SQLAlchemy 引擎"""
