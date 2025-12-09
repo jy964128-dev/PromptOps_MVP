@@ -118,14 +118,14 @@ export function ProjectSidebar({
   return (
     <div className="h-screen w-64 border-r border-gray-200 bg-white">
       {/* 顶部标题 - Google 风格 */}
-      <div className="border-b border-gray-200 px-4 py-3">
+      <div className="border-b border-gray-200 px-4 py-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-medium text-gray-900">项目</h2>
+          <h2 className="text-base font-semibold text-gray-900">项目</h2>
           {projects.filter((p) => p.prompt_count === 0).length > 0 && (
             <button
               type="button"
               onClick={handleDeleteAllEmptyProjects}
-              className="text-xs text-red-600 hover:text-red-700 hover:underline"
+              className="text-sm font-medium text-red-600 hover:text-red-700 hover:underline transition-colors"
               title="删除所有空项目"
             >
               清理
@@ -137,7 +137,7 @@ export function ProjectSidebar({
       {/* 项目列表 */}
       <div className="relative overflow-y-auto px-3 py-3">
         {loading && (
-          <div className="px-2 py-4 text-center text-xs text-gray-500">
+          <div className="px-2 py-4 text-center text-sm text-gray-500">
             <div className="inline-flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
               加载中...
@@ -145,7 +145,7 @@ export function ProjectSidebar({
           </div>
         )}
         {error && (
-          <div className="px-2 py-4 text-center text-xs text-red-500">
+          <div className="px-2 py-4 text-center text-sm text-red-600 font-medium">
             {error}
           </div>
         )}
@@ -154,15 +154,15 @@ export function ProjectSidebar({
         <button
           type="button"
           onClick={() => onSelectProject(null)}
-          className={`mb-1 w-full rounded-md px-3 py-2 text-left text-xs transition-colors ${
+          className={`mb-2 w-full rounded-md px-3 py-2.5 text-left text-sm transition-colors ${
             selectedProjectId === null
-              ? 'bg-blue-50 text-blue-700 font-medium'
-              : 'text-gray-700 hover:bg-gray-50'
+              ? 'bg-blue-50 text-blue-700 font-semibold'
+              : 'text-gray-700 hover:bg-gray-50 font-medium'
           }`}
         >
           <div className="flex items-center justify-between">
             <span>全部提示词</span>
-            <span className="ml-2 rounded-full bg-gray-200 px-2 py-0.5 text-xs text-gray-600">
+            <span className="ml-2 rounded-full bg-gray-200 px-2.5 py-1 text-sm font-medium text-gray-700">
               {projects.reduce((sum, p) => sum + p.prompt_count, 0)}
             </span>
           </div>
@@ -181,26 +181,26 @@ export function ProjectSidebar({
             <button
               type="button"
               onClick={() => onSelectProject(project.id)}
-              className={`w-full px-3 py-2 text-left text-xs transition-colors ${
+              className={`w-full px-3 py-2.5 text-left text-sm transition-colors ${
                 selectedProjectId === project.id
-                  ? 'text-blue-700 font-medium'
-                  : 'text-gray-700'
+                  ? 'text-blue-700 font-semibold'
+                  : 'text-gray-700 font-medium'
               }`}
             >
               <div className="flex items-center justify-between">
                 <div className="flex-1 min-w-0">
-                  <div className="truncate font-medium">{project.name}</div>
+                  <div className="truncate">{project.name}</div>
                   {project.description && (
-                    <div className="mt-0.5 truncate text-gray-500">
+                    <div className="mt-1 truncate text-sm text-gray-500">
                       {project.description}
                     </div>
                   )}
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className={`rounded-full px-2 py-0.5 text-xs ${
+                  <span className={`rounded-full px-2.5 py-1 text-sm font-medium ${
                     project.prompt_count === 0
                       ? 'bg-red-100 text-red-600'
-                      : 'bg-gray-200 text-gray-600'
+                      : 'bg-gray-200 text-gray-700'
                   }`}>
                     {project.prompt_count}
                   </span>
@@ -231,7 +231,7 @@ export function ProjectSidebar({
         ))}
 
         {projects.length === 0 && !loading && (
-          <div className="px-2 py-4 text-center text-xs text-gray-400">
+          <div className="px-2 py-4 text-center text-sm text-gray-500">
             暂无项目
           </div>
         )}

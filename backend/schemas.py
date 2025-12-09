@@ -22,8 +22,8 @@ class PromptBase(BaseModel):
 class PromptCreate(PromptBase):
     """新建 Prompt 请求体"""
 
-    compiled_template: Optional[str] = Field(
-        "", description="编译后的模板文本（MVP 阶段可先为空）"
+    compiled_template: Optional[str | dict] = Field(
+        None, description="编译后的模板文本，支持字符串（旧格式）或 JSON 格式：{\"zh\": \"...\", \"en\": \"...\"}"
     )
 
 
@@ -74,7 +74,7 @@ class PromptDetail(BaseModel):
     version: Optional[str] = None
 
     structure: PromptStructure | None = None
-    compiled_template: str = ""
+    compiled_template: str | dict = Field(default_factory=lambda: {"zh": "", "en": ""})
     config_json: dict[str, Any] = {}
 
 
@@ -88,7 +88,9 @@ class PromptDetailUpdate(BaseModel):
     version: Optional[str] = None
 
     structure: Optional[PromptStructure] = None
-    compiled_template: Optional[str] = None
+    compiled_template: Optional[str | dict] = Field(
+        None, description="编译后的模板文本，支持字符串（旧格式）或 JSON 格式：{\"zh\": \"...\", \"en\": \"...\"}"
+    )
     config_json: Optional[dict[str, Any]] = None
 
 

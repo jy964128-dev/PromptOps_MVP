@@ -36,6 +36,72 @@ def _render_template(template: str, variables: dict) -> tuple[str, list[str]]:
     return result, errors
 
 
+@router.post("/translate")
+async def translate_prompt(
+    payload: dict = Body(...),
+    db: Session = Depends(get_db),
+):
+    """
+    翻译提示词（中译英或英译中）
+    
+    请求体：
+    {
+        "text": "要翻译的文本",
+        "from_lang": "zh" | "en",
+        "to_lang": "zh" | "en",
+        "api_key": "sk-xxx",  # 必需，BYOK 模式
+        "model": "gpt-3.5-turbo"  # 可选
+    }
+    """
+    text = payload.get("text", "")
+    from_lang = payload.get("from_lang", "zh")
+    to_lang = payload.get("to_lang", "en")
+    api_key = payload.get("api_key")
+    model = payload.get("model", "gpt-3.5-turbo")
+    
+    if not text:
+        raise HTTPException(status_code=400, detail="文本内容不能为空")
+    
+    if not api_key:
+        raise HTTPException(status_code=400, detail="API Key 不能为空")
+    
+    if not litellm:
+        raise HTTPException(status_code=500, detail="LiteLLM 未安装，无法进行翻译")
+    
+    # 构建翻译提示词
+    if from_lang == "zh":
+        translate_prompt_text = f"""请将以下中文提示词翻译成英文，保持格式和变量（{{{{variable}}}}）不变，只翻译文本内容。不要添加任何解释或说明，直接返回翻译结果：
+
+{text}"""
+    else:
+        translate_prompt_text = f"""Please translate the following English prompt to Chinese, keep the format and variables ({{{{variable}}}}) unchanged, only translate the text content. Do not add any explanations or notes, just return the translation result:
+
+{text}"""
+    
+    try:
+        response = await litellm.acompletion(
+            model=model,
+            messages=[{"role": "user", "content": translate_prompt_text}],
+            api_key=api_key,
+            temperature=0.3,
+        )
+        
+        translated_text = response.choices[0].message.content if response.choices else ""
+        
+        return {
+            "original_text": text,
+            "translated_text": translated_text.strip(),
+            "from_lang": from_lang,
+            "to_lang": to_lang,
+            "model": model,
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"翻译失败: {str(e)}"
+        )
+
+
 @router.post("/{prompt_slug}")
 async def run_prompt(
     prompt_slug: str,
@@ -60,7 +126,17 @@ async def run_prompt(
     if not version:
         raise HTTPException(status_code=404, detail="Prompt 无可用版本")
     
-    template = version.compiled_template or ""
+    # 支持 JSON 格式的 compiled_template：{"zh": "...", "en": "..."}
+    # 兼容旧数据（字符串格式）
+    lang = payload.get("lang", "zh")  # 默认使用中文
+    if isinstance(version.compiled_template, dict):
+        # 优先使用指定语言，如果为空则使用另一种语言，最后使用中文
+        template = version.compiled_template.get(lang, "") or \
+                   version.compiled_template.get("en" if lang == "zh" else "zh", "") or \
+                   version.compiled_template.get("zh", "") or \
+                   version.compiled_template.get("en", "")
+    else:
+        template = version.compiled_template or ""
     variables = payload.get("variables") or {}
     api_key = payload.get("api_key")  # BYOK 模式
     model = payload.get("model") or (version.config_json.get("model_name") if version.config_json else "gpt-3.5-turbo")

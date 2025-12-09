@@ -75,7 +75,9 @@ class PromptVersion(Base):
     version_num = Column(String(50))
     is_published = Column(Boolean, default=False)
     structure_json = Column(JSON)
-    compiled_template = Column(Text, nullable=False)
+    # 多语言支持：{"zh": "...", "en": "..."}
+    # 使用函数而不是 lambda，确保每次创建新实例时都生成新的字典
+    compiled_template = Column(JSON, nullable=False, default=lambda: {"zh": "", "en": ""})
     variables = Column(JSON, default=lambda: [])
     config_json = Column(JSON, nullable=False, default=lambda: {})
     commit_message = Column(Text)

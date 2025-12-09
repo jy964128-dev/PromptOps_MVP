@@ -48,6 +48,13 @@ if SQLALCHEMY_DATABASE_URL.startswith("postgresql://") or SQLALCHEMY_DATABASE_UR
         print(f"警告: 无法解析 DATABASE_URL: {e}")
         print(f"使用原始连接字符串: {SQLALCHEMY_DATABASE_URL[:50]}...")
 
+# 获取当前代码读到的地址
+current_url = os.getenv("DATABASE_URL") # 确保这里的键名和你Render里设置的一样
+
+# 打印出来（在Render日志里看）
+print(f"--- DEBUG INFO ---")
+print(f"The code thinks the URL is: {current_url}")
+print(f"--- DEBUG END ---")
 
 def _create_engine():
     """构建 SQLAlchemy 引擎"""
