@@ -20,14 +20,40 @@ pip install -r backend/requirements.txt
 
 ### 问题 2: Start Command 路径错误
 
-**错误现象**: 找不到 `main:app` 模块
+**错误现象**: 
+- 找不到 `main:app` 模块
+- 或看到 `==> Running 'uvicorn backend.main:app ...'` 但命令格式不对
+
+**原因**: Render 自动检测的启动命令格式不正确，缺少 `python -m` 前缀
 
 **修复方案**:
+
+#### 方案 A: 在 Render Dashboard 中手动设置
+
 在 Render Web Service Settings 中，设置：
 
 **Start Command**:
 ```
 cd backend && python -m uvicorn main:app --host 0.0.0.0 --port $PORT
+```
+
+**注意**: 
+- 必须使用 `python -m uvicorn` 而不是直接使用 `uvicorn`
+- 必须使用 `cd backend &&` 来切换到 backend 目录
+- 使用 `main:app` 而不是 `backend.main:app`（因为已经在 backend 目录中）
+
+#### 方案 B: 使用 render.yaml 配置文件
+
+1. 确保项目根目录有 `render.yaml` 文件（已创建）
+2. 在 Render Dashboard 中：
+   - 进入 Web Service Settings
+   - 找到 "Source" 或 "Configuration" 部分
+   - 确保 Render 会读取 `render.yaml` 文件
+3. 重新部署服务
+
+**render.yaml 中的正确配置**:
+```yaml
+startCommand: cd backend && python -m uvicorn main:app --host 0.0.0.0 --port $PORT
 ```
 
 ---
