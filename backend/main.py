@@ -23,8 +23,8 @@ app = FastAPI(
 origins = [
     "http://localhost:3000",             # 本地开发前端
     "http://localhost:5173",             # Vite 本地默认端口
-    "https://prompt-ops-mvp-blush.vercel.app",  # <--- 你的 Vercel 生产环境域名 (没有末尾斜杠!)
-    "https://promptops-mvp.vercel.app",
+    "https://prompt-ops-foi5sjagp-jy964128-2933s-projects.vercel.app", 
+    "https://prompt-ops-mvp-blush.vercel.app",
 ]
 app.add_middleware(
     CORSMiddleware,
