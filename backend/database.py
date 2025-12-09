@@ -4,6 +4,7 @@
 支持 SQLite（开发）和 PostgreSQL（生产）
 """
 import os
+from urllib.parse import urlparse, urlunparse
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
@@ -14,9 +15,38 @@ SQLALCHEMY_DATABASE_URL = os.getenv(
 )
 
 # 如果是 PostgreSQL，需要处理连接字符串格式
-if SQLALCHEMY_DATABASE_URL.startswith("postgresql://") and "psycopg2" not in SQLALCHEMY_DATABASE_URL:
+if SQLALCHEMY_DATABASE_URL.startswith("postgresql://") or SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
+    # Render 和其他平台可能使用 postgres:// 或 postgresql://
+    # 统一转换为 postgresql+psycopg2:// 格式
+    if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
+        # 将 postgres:// 转换为 postgresql://
+        SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://", 1)
+    
     # 确保使用 psycopg2 适配器
-    SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
+    if "psycopg2" not in SQLALCHEMY_DATABASE_URL:
+        SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
+    
+    # 处理 Render 的特殊情况：检查并修复连接字符串
+    try:
+        parsed = urlparse(SQLALCHEMY_DATABASE_URL)
+        # 调试信息：输出解析后的连接信息（隐藏密码）
+        safe_url = SQLALCHEMY_DATABASE_URL
+        if parsed.password:
+            safe_url = SQLALCHEMY_DATABASE_URL.replace(f":{parsed.password}@", ":****@")
+        print(f"数据库连接信息: {parsed.scheme}://{parsed.username}@****/{parsed.path.lstrip('/')}")
+        print(f"主机名: {parsed.hostname}, 端口: {parsed.port or '默认(5432)'}")
+        
+        # 检查主机名是否完整
+        if parsed.hostname and not parsed.hostname.endswith(('.com', '.net', '.org', '.io', '.app', '.render.com')):
+            # 如果主机名看起来不完整（例如只有 "dpg-xxx-a"），可能是 Render 的内部 URL
+            # Render 的内部 URL 通常格式为: dpg-xxx-a.render.com 或 dpg-xxx-a.singapore-postgres.render.com
+            # 但有时可能只提供短主机名，需要检查是否是 Internal Database URL
+            print(f"警告: 主机名 '{parsed.hostname}' 看起来不完整，可能是 Render Internal Database URL")
+            print("提示: 如果连接失败，请确保使用正确的 DATABASE_URL（Internal 或 External）")
+    except Exception as e:
+        # 如果解析失败，记录错误但继续使用原始 URL
+        print(f"警告: 无法解析 DATABASE_URL: {e}")
+        print(f"使用原始连接字符串: {SQLALCHEMY_DATABASE_URL[:50]}...")
 
 
 def _create_engine():
