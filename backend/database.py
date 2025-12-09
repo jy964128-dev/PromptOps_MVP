@@ -97,9 +97,13 @@ def init_db():
     """初始化数据库表"""
     # 延迟导入，避免循环引用
     from . import models  # noqa: F401
-
+    # --- 警告：这将清空数据！仅在本次部署使用 ---
+    # 因为你的表结构大改了，必须先 drop 旧表，否则 create 会报错
+    print("正在重置数据库结构...")
+    Base.metadata.drop_all(bind=engine) 
+    # ----------------------------------------
     Base.metadata.create_all(bind=engine)
-
+print("数据库重置完成。糖小果！")
 
 
 
