@@ -19,39 +19,17 @@ app = FastAPI(
     description="Prompt 生命周期管理系统 API",
     version="1.0.0",
 )
-# --- 配置 CORS (核心修改在这里) ---
-origins = [
-    "http://localhost:3000",             # 本地开发前端
-    "http://localhost:5173",             # Vite 本地默认端口
-    "https://prompt-ops-foi5sjagp-jy964128-2933s-projects.vercel.app", 
-    "https://prompt-ops-mvp-blush.vercel.app",
-]
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,   # 这里使用了上面的列表
-    allow_credentials=True,
-    allow_methods=["*"],     # 允许所有方法 (GET, POST, PUT, DELETE等)
-    allow_headers=["*"],     # 允许所有 Header
-)
+
 # 配置 CORS（跨域资源共享）
-# 开发环境：明确列出常见端口 + 正则表达式匹配其他端口
-# 生产环境：通过环境变量 CORS_ORIGINS 设置具体域名
+# 注意：当 allow_credentials=True 时，不能使用 allow_origins=["*"]，必须明确列出域名
 cors_origins_env = os.getenv("CORS_ORIGINS", "")
 
 if cors_origins_env:
     # 生产环境：使用环境变量中指定的域名
-    cors_origins = [origin.strip() for origin in cors_origins_env.split(",")]
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=cors_origins,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+    cors_origins = [origin.strip() for origin in cors_origins_env.split(",") if origin.strip()]
+    print(f"🌐 CORS 配置: 使用环境变量，允许的来源 = {cors_origins}")
 else:
-    # 开发环境：明确列出所有可能的 localhost 端口
-    # 注意：当 allow_credentials=True 时，不能使用 ["*"]，必须明确列出
-    # 使用较大的端口范围覆盖 Vite 可能使用的所有端口
+    # 开发环境：明确列出所有可能的 localhost 端口和生产环境域名
     dev_origins = []
     # 添加常见的开发端口
     for port in [3000, 5173, 5174, 5175, 5176, 5177, 5178, 5179, 5180, 8080, 8081]:
@@ -59,15 +37,23 @@ else:
             f"http://localhost:{port}",
             f"http://127.0.0.1:{port}",
         ])
-    
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=dev_origins,
-        allow_credentials=True,
-        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-        allow_headers=["*"],
-        expose_headers=["*"],
-    )
+    # 添加生产环境域名（如果没有设置环境变量，也允许这些域名）
+    dev_origins.extend([
+        "https://prompt-ops-foi5sjagp-jy964128-2933s-projects.vercel.app",
+        "https://prompt-ops-mvp-blush.vercel.app",
+    ])
+    cors_origins = dev_origins
+    print(f"🌐 CORS 配置: 开发模式，允许的来源 = {len(cors_origins)} 个")
+
+# 只添加一个 CORS 中间件
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=cors_origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allow_headers=["*"],
+    expose_headers=["*"],
+)
 
 # 注册路由
 app.include_router(prompts_router)
@@ -84,14 +70,6 @@ async def startup_event():
     """
     init_db()
     print("数据库初始化完成")
-    
-    # 输出 CORS 配置信息
-    cors_origins_env = os.getenv("CORS_ORIGINS", "")
-    if cors_origins_env:
-        print(f"🌐 CORS 配置: 允许的来源 = {cors_origins_env}")
-    else:
-        print("🌐 CORS 配置: 开发模式")
-        print("   允许的端口: 3000, 5173-5180, 8080, 8081 (localhost 和 127.0.0.1)")
 
 
 @app.get("/")
@@ -126,11 +104,6 @@ async def test_cors():
     }
 
 
-@app.options("/api/v1/prompts")
-async def options_prompts():
-    """
-    CORS 预检请求处理（OPTIONS）
-    确保 CORS 预检请求能正确响应
-    """
-    return {"status": "ok"}
+# 注意：不需要手动处理 OPTIONS 请求
+# FastAPI 的 CORSMiddleware 会自动处理所有 OPTIONS 预检请求
 
