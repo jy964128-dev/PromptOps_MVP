@@ -1,0 +1,33 @@
+warning: in the working copy of 'backend/database.py', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/backend/database.py b/backend/database.py[m
+[1mindex 4a784bd..0b00c8f 100644[m
+[1m--- a/backend/database.py[m
+[1m+++ b/backend/database.py[m
+[36m@@ -52,9 +52,9 @@[m [mif SQLALCHEMY_DATABASE_URL.startswith("postgresql://") or SQLALCHEMY_DATABASE_UR[m
+ current_url = os.getenv("DATABASE_URL") # 确保这里的键名和你Render里设置的一样[m
+ [m
+ # 打印出来（在Render日志里看）[m
+[31m-print(f"唐小果--- DEBUG INFO ---")[m
+[31m-print(f"The code thinks the URL is: {current_url}")[m
+[31m-print(f"糖小果--- DEBUG END ---")[m
+[32m+[m[32m#print(f"唐小果--- DEBUG INFO ---")[m
+[32m+[m[32m#print(f"The code thinks the URL is: {current_url}")[m
+[32m+[m[32m#print(f"糖小果--- DEBUG END ---")[m
+ [m
+ def _create_engine():[m
+     """构建 SQLAlchemy 引擎"""[m
+[36m@@ -99,11 +99,11 @@[m [mdef init_db():[m
+     from . import models  # noqa: F401[m
+     # --- 警告：这将清空数据！仅在本次部署使用 ---[m
+     # 因为你的表结构大改了，必须先 drop 旧表，否则 create 会报错[m
+[31m-    print("正在重置数据库结构...")[m
+[31m-    Base.metadata.drop_all(bind=engine) [m
+[32m+[m[32m    #print("正在重置数据库结构...")[m
+[32m+[m[32m    #Base.metadata.drop_all(bind=engine)[m[41m [m
+     # ----------------------------------------[m
+     Base.metadata.create_all(bind=engine)[m
+[31m-print("数据库重置完成。糖小果！")[m
+[32m+[m[32m    #print("数据库重置完成。糖小果！")[m
+ [m
+ [m
+ [m

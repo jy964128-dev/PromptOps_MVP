@@ -52,9 +52,9 @@ if SQLALCHEMY_DATABASE_URL.startswith("postgresql://") or SQLALCHEMY_DATABASE_UR
 current_url = os.getenv("DATABASE_URL") # 确保这里的键名和你Render里设置的一样
 
 # 打印出来（在Render日志里看）
-print(f"唐小果--- DEBUG INFO ---")
-print(f"The code thinks the URL is: {current_url}")
-print(f"糖小果--- DEBUG END ---")
+#print(f"唐小果--- DEBUG INFO ---")
+#print(f"The code thinks the URL is: {current_url}")
+#print(f"糖小果--- DEBUG END ---")
 
 def _create_engine():
     """构建 SQLAlchemy 引擎"""
@@ -99,11 +99,11 @@ def init_db():
     from . import models  # noqa: F401
     # --- 警告：这将清空数据！仅在本次部署使用 ---
     # 因为你的表结构大改了，必须先 drop 旧表，否则 create 会报错
-    print("正在重置数据库结构...")
-    Base.metadata.drop_all(bind=engine) 
+    #print("正在重置数据库结构...")
+    #Base.metadata.drop_all(bind=engine) 
     # ----------------------------------------
     Base.metadata.create_all(bind=engine)
-print("数据库重置完成。糖小果！")
+    #print("数据库重置完成。糖小果！")
 
 
 

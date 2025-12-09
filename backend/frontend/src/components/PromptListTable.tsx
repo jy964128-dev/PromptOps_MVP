@@ -166,18 +166,7 @@ export default function PromptListTable({ selectedProjectId }: PromptListTablePr
     return template.zh || template.en || '';
   };
 
-  // 格式化结构化数据
-  const formatStructure = (structure: PromptDetail['structure']): string => {
-    if (!structure) return '';
-    const parts: string[] = [];
-    if (structure.role) parts.push(`角色: ${structure.role}`);
-    if (structure.task) parts.push(`任务: ${structure.task}`);
-    if (structure.context) parts.push(`上下文: ${structure.context}`);
-    if (structure.constraints && structure.constraints.length > 0) {
-      parts.push(`约束: ${structure.constraints.join('; ')}`);
-    }
-    return parts.join(' | ');
-  };
+ 
 
   if (loading) {
     return (

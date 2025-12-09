@@ -2,7 +2,7 @@
  * About 组件 - 软件信息弹窗
  * 展示软件版本、介绍、功能点和作者信息
  */
-import React from 'react';
+
 
 interface AboutProps {
   onClose: () => void;
