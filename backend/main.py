@@ -22,28 +22,34 @@ app = FastAPI(
 
 # 配置 CORS（跨域资源共享）
 # 注意：当 allow_credentials=True 时，不能使用 allow_origins=["*"]，必须明确列出域名
+
+# 默认的生产环境域名（始终包含）
+default_production_origins = [
+    "https://prompt-ops-foi5sjagp-jy964128-2933s-projects.vercel.app",
+    "https://prompt-ops-mvp-blush.vercel.app",
+]
+
+# 开发环境的 localhost 端口
+dev_origins = []
+for port in [3000, 5173, 5174, 5175, 5176, 5177, 5178, 5179, 5180, 8080, 8081]:
+    dev_origins.extend([
+        f"http://localhost:{port}",
+        f"http://127.0.0.1:{port}",
+    ])
+
+# 获取环境变量中的 CORS 配置
 cors_origins_env = os.getenv("CORS_ORIGINS", "")
 
 if cors_origins_env:
-    # 生产环境：使用环境变量中指定的域名
-    cors_origins = [origin.strip() for origin in cors_origins_env.split(",") if origin.strip()]
-    print(f"🌐 CORS 配置: 使用环境变量，允许的来源 = {cors_origins}")
+    # 如果设置了环境变量，使用环境变量 + 默认生产域名（去重）
+    env_origins = [origin.strip() for origin in cors_origins_env.split(",") if origin.strip()]
+    cors_origins = list(set(env_origins + default_production_origins))
+    print(f"🌐 CORS 配置: 使用环境变量 + 默认域名，允许的来源 = {cors_origins}")
 else:
-    # 开发环境：明确列出所有可能的 localhost 端口和生产环境域名
-    dev_origins = []
-    # 添加常见的开发端口
-    for port in [3000, 5173, 5174, 5175, 5176, 5177, 5178, 5179, 5180, 8080, 8081]:
-        dev_origins.extend([
-            f"http://localhost:{port}",
-            f"http://127.0.0.1:{port}",
-        ])
-    # 添加生产环境域名（如果没有设置环境变量，也允许这些域名）
-    dev_origins.extend([
-        "https://prompt-ops-foi5sjagp-jy964128-2933s-projects.vercel.app",
-        "https://prompt-ops-mvp-blush.vercel.app",
-    ])
-    cors_origins = dev_origins
-    print(f"🌐 CORS 配置: 开发模式，允许的来源 = {len(cors_origins)} 个")
+    # 如果没有设置环境变量，使用开发端口 + 生产域名
+    cors_origins = list(set(dev_origins + default_production_origins))
+    print(f"🌐 CORS 配置: 使用默认配置，允许的来源 = {len(cors_origins)} 个")
+    print(f"   包含生产域名: {default_production_origins}")
 
 # 只添加一个 CORS 中间件
 app.add_middleware(
